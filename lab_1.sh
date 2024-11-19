@@ -6,7 +6,14 @@ FIFO1="/Users/aleksandr/Desktop/lab1/fifo1"
 FIFO2="/Users/aleksandr/Desktop/lab1/fifo2"
 
 # Очистка перед запуском
-rm -f $TEXT_FILE $FIFO1 $FIFO2
+cleanup() {
+    echo "Прерывание: Удаление временных файлов..."
+    rm -f $TEXT_FILE $FIFO1 $FIFO2
+    exit 1
+}
+
+# Обработка сигнала SIGINT (Ctrl+C)
+trap cleanup SIGINT
 
 # Создание именованных каналов
 mkfifo $FIFO1
@@ -60,5 +67,5 @@ cat $TEXT_FILE > $FIFO1 &
 wait
 
 # Удаление временных файлов
-rm -f $TEXT_FILE $FIFO1 $FIFO2
+cleanup
 
