@@ -7,13 +7,17 @@ FIFO2="/Users/aleksandr/Desktop/lab1/fifo2"
 
 # Очистка перед запуском
 cleanup() {
-    echo "Прерывание: Удаление временных файлов..."
+    if [ "$1" == "SIGINT" ]; then
+        echo "Прерывание: Удаление временных файлов из-за нажатия Ctrl+C..."
+    else
+        echo "Программа завершена. Удаление временных файлов..."
+    fi
     rm -f $TEXT_FILE $FIFO1 $FIFO2
-    exit 1
+    exit 0
 }
 
 # Обработка сигнала SIGINT (Ctrl+C)
-trap cleanup SIGINT
+trap 'cleanup SIGINT' SIGINT
 
 # Создание именованных каналов
 mkfifo $FIFO1
@@ -65,7 +69,7 @@ cat $TEXT_FILE > $FIFO1 &
 
 # Ожидание завершения процессов
 wait
+sleep 5
 
 # Удаление временных файлов
-cleanup
-
+cleanup NORMAL

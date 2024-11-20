@@ -5,8 +5,15 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #define BUFFER_SIZE 1024
+
+// Функция для обработки сигнала SIGINT
+void handle_sigint(int sig) {
+    printf("\nПрограмма прервана (сигнал %d). Завершение...\n", sig);
+    exit(0);
+}
 
 // Функция для создания и записи текста в файл
 void create_text(const char *filename) {
@@ -32,7 +39,6 @@ void child_process1(int read_fd, int write_fd) {
         if (bytes_read <= 0) {
             break;
         }
-        //buffer[bytes_read] = '\0';
 
         // Добавляем индекс после каждого символа
         for (int i = 0; i < bytes_read; i++) {
@@ -54,7 +60,6 @@ void child_process1(int read_fd, int write_fd) {
     close(read_fd);
     close(write_fd);
 }
-
 
 void child_process2(int read_fd) {
     char buffer[BUFFER_SIZE];
@@ -100,8 +105,6 @@ void child_process2(int read_fd) {
         strcat(formatted, " ");                // Добавляем пробел
 
         index++;  // Увеличиваем индекс
-
-        
     }
 
     // Печатаем результат
@@ -110,10 +113,10 @@ void child_process2(int read_fd) {
     close(read_fd);
 }
 
-
-
-
 int main() {
+    // Устанавливаем обработчик сигнала SIGINT
+    signal(SIGINT, handle_sigint);
+
     // Название файла, в котором будет текст
     const char *filename = "input.txt";
 
@@ -163,6 +166,7 @@ int main() {
             close(pipe1[0]); // Закрываем неиспользуемую сторону
             close(pipe2[0]); // Закрываем неиспользуемую сторону
             close(pipe2[1]); // Закрываем неиспользуемую сторону
+            close(pipe2[1]); // Закрываем неиспользуемую сторону™
 
             // Открытие файла для чтения
             FILE *file = fopen(filename, "r");
@@ -184,6 +188,6 @@ int main() {
             wait(NULL);
         }
     }
-
+    sleep(5);
     return 0;
 }
